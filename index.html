@@ -64,8 +64,9 @@
     <!-- Main Content -->
     <main class="max-w-6xl mx-auto px-6 py-10 w-full">
         <div class="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8 items-start">
-            <aside class="space-y-6">
-                
+            
+            <aside class="space-y-6 lg:sticky lg:top-24 self-start">
+
                 <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
                     <!-- Profile Photo & Social Links Column -->
                     <div class="flex flex-col items-center gap-4 flex-shrink-0">
@@ -184,6 +185,39 @@
                             </div>
                         </div>
                     </div>
+                </div>
+
+                <!-- NEW: Latest Updates section -->
+                <div class="bg-white rounded-xl p-8 border border-slate-200 shadow-sm space-y-4">
+                    <h2 class="text-2xl font-bold text-slate-900 border-b pb-3 flex items-center gap-3">
+                        <i class="fa-solid fa-bell text-amber-500"></i> Latest Updates
+                    </h2>
+
+                    <ul class="space-y-3 text-sm text-slate-700">
+                        <li class="flex gap-2">
+                            <span class="mt-0.5 inline-flex items-center justify-center w-2 h-2 rounded-full bg-emerald-500"></span>
+                            <div>
+                                <p class="font-semibold">Joined in Viswire as Domain Expert</p>
+                                <p class="text-xs text-slate-500">10th July 2026 · Research and Training Simulations </p>
+                            </div>
+                        </li>
+
+                        <li class="flex gap-2">
+                            <span class="mt-0.5 inline-flex items-center justify-center w-2 h-2 rounded-full bg-emerald-500"></span>
+                            <div>
+                                <p class="font-semibold">Updated Google Scholar metrics</p>
+                                <p class="text-xs text-slate-500" id="latest-updates-scholar">Powered by automated citation sync.</p>
+                            </div>
+                        </li>
+
+                        <!-- <li class="flex gap-2">
+                            <span class="mt-0.5 inline-flex items-center justify-center w-2 h-2 rounded-full bg-emerald-500"></span>
+                            <div>
+                                <p class="font-semibold">New article accepted in Transportation Research Part F</p>
+                                <p class="text-xs text-slate-500">“Behavioral assessment of distracted pedestrians at intersections”</p>
+                            </div>
+                        </li> -->
+                    </ul>
                 </div>
             </section>      
         </div>
