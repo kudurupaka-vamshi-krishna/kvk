@@ -134,8 +134,27 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", async function () {
+            // Detect if we are on Vercel (custom domain or vercel app) or GitHub Pages
+            const host = window.location.host;
+
+            // Change this to your actual GitHub username & repo
+            const GITHUB_USER = "kvamshikrishna";
+            const GITHUB_REPO = "kvamshikrishna.github.io";
+            const GITHUB_BRANCH = "main";
+
+            let endpoint;
+
+            if (host.includes("vercel.app")) {
+            // Running on Vercel deployment
+            endpoint = "/api/scholar-metrics";
+            } else {
+            // Assume GitHub Pages: load JSON directly from GitHub raw URL
+            endpoint =
+                `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/data/scholar_metrics.json`;
+            }
+
             try {
-            const response = await fetch("/.netlify/functions/scholar-metrics");
+            const response = await fetch(endpoint);
 
             if (!response.ok) {
                 throw new Error("Network response was not ok");
