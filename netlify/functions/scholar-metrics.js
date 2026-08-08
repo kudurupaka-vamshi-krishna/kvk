@@ -5,8 +5,8 @@ const path = require("path");
 
 exports.handler = async function (event, context) {
   try {
-    // Path relative to the repo root when built by Netlify
-    const metricsPath = path.join(__dirname, "..", "..", "data", "scholar_metrics.json");
+    // In Netlify Functions, process.cwd() points to the project root at runtime
+    const metricsPath = path.join(process.cwd(), "data", "scholar_metrics.json");
 
     const fileContents = fs.readFileSync(metricsPath, "utf-8");
     const metrics = JSON.parse(fileContents);
@@ -15,7 +15,7 @@ exports.handler = async function (event, context) {
       statusCode: 200,
       headers: {
         "Content-Type": "application/json",
-        "Cache-Control": "public, max-age=3600"
+        "Cache-Control": "public, max-age=3600",
       },
       body: JSON.stringify(metrics),
     };
