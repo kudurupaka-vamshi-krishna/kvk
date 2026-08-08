@@ -200,7 +200,7 @@
     <script>
         document.addEventListener("DOMContentLoaded", async function () {
             try {
-            const response = await fetch("/.netlify/functions/scholar-metrics");
+            const response = await fetch("/api/scholar-metrics");
 
             if (!response.ok) {
                 throw new Error("Network response was not ok");
