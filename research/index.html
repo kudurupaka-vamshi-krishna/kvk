@@ -114,17 +114,21 @@
             
             <div class="grid grid-cols-3 gap-4 text-center">
                 <div class="p-3 bg-slate-50 rounded-lg">
-                    <span class="text-xs text-slate-500 block">Citations</span>
-                    <span id="research-citations" class="text-xl font-bold text-slate-900">--</span>
+                    <span class="text-xs text-slate-500 block">Total Citations</span>
+                    <span id="scholar-citations" class="text-xl font-bold text-slate-900">--</span>
                 </div>
                 <div class="p-3 bg-slate-50 rounded-lg">
                     <span class="text-xs text-slate-500 block">h-index</span>
-                    <span id="research-hindex" class="text-xl font-bold text-slate-900">--</span>
+                    <span id="scholar-hindex" class="text-xl font-bold text-slate-900">--</span>
                 </div>
                 <div class="p-3 bg-slate-50 rounded-lg">
                     <span class="text-xs text-slate-500 block">i10-index</span>
-                    <span id="research-i10index" class="text-xl font-bold text-slate-900">--</span>
+                    <span id="scholar-i10index" class="text-xl font-bold text-slate-900">--</span>
                 </div>
+                <p id="scholar-updated-at"
+                    class="mt-3 text-[11px] text-slate-500 italic">
+                    <!-- Filled by JS -->
+                </p>
             </div>
         </div>
     </main>
@@ -138,8 +142,8 @@
             const host = window.location.host;
 
             // Change this to your actual GitHub username & repo
-            const GITHUB_USER = "kvamshikrishna";
-            const GITHUB_REPO = "kvamshikrishna.github.io";
+            const GITHUB_USER = "Kudurupaka-Vamshi-Krishna";
+            const GITHUB_REPO = "Kudurupaka-Vamshi-Krishna/kvamshikrishna.github.io";
             const GITHUB_BRANCH = "main";
 
             let endpoint;
