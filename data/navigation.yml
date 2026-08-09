@@ -15,7 +15,7 @@ main:
     url: "/skills/"
     id: "skills"
     icon: "fa-laptop-code"
-  - title: "Experience & Education"
+  - title: "Education & Experience"
     url: "/experience/"
     id: "experience"
     icon: "fa-graduation-cap"
