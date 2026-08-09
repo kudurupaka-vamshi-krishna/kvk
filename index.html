@@ -224,22 +224,64 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-slate-900 text-slate-400 text-xs py-8 border-t border-slate-800">
-        <div class="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p>© 2026 Dr. K. Vamshi Krishna. All rights reserved.</p>
-            <p>Designed for GitHub Pages & Netlify</p>
+    <footer class="bg-slate-900 text-slate-300 text-xs border-t border-slate-800 mt-10">
+        <div class="max-w-6xl mx-auto px-6 py-8">
+            <!-- Top: 3–4 columns -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+
+            <!-- Contact -->
+            <div>
+                <h3 class="text-sm font-semibold text-slate-100 mb-2">Contact</h3>
+                    <p class="mb-1">Dr. K. Vamshi Krishna</p>
+                    <p class="mb-1">Domain Expert</p>
+                    <p class="mb-1">Viswire Simulation &amp; Training Pvt. Ltd.</p>
+                    <p class="mt-1"><span class="font-semibold text-slate-100">Email:</span><a href="mailto:vamshi@viswire.com" class="hover:text-blue-400"> vamshi@viswire.com</a>
+                </p>
+            </div>
+
+            <!-- Academic affiliations -->
+            <div>
+                <h3 class="text-sm font-semibold text-slate-100 mb-2">Academic Affiliations</h3>
+                    <ul class="space-y-1">
+                        <li><a href="https://www.iitb.ac.in/" target="_blank" class="hover:text-blue-400">Indian Institute of Technology Bombay</a></li>
+                        <li><a href="https://www.iitr.ac.in/" target="_blank" class="hover:text-blue-400">Indian Institute of Technology Roorkee</a></li>
+                        <li><a href="https://www.nitrkl.ac.in/" target="_blank" class="hover:text-blue-400">National Institute of Technology Rourkela</a></li>
+                    </ul>
+            </div>
+
+            <!-- Quick links -->
+            <div>
+                <h3 class="text-sm font-semibold text-slate-100 mb-2">Quick Links</h3>
+                    <ul class="space-y-1">
+                        <li><a href="research/index.html" class="hover:text-blue-400">Research &amp; Patents</a></li>
+                        <li><a href="publications/index.html" class="hover:text-blue-400">Publications &amp; Talks</a></li>
+                        <li><a href="experience/index.html" class="hover:text-blue-400">Experience &amp; Education</a></li>
+                        <li><a href="contact/index.html" class="hover:text-blue-400">Contact</a></li>
+                    </ul>
+            </div>
+
+            <!-- Profiles / Metrics -->
+            <div>
+                <h3 class="text-sm font-semibold text-slate-100 mb-2">Profiles &amp; Metrics</h3>
+                    <ul class="space-y-1">
+                        <li><a href="https://scholar.google.com/citations?hl=en&user=eDJs5bAAAAAJ" target="_blank" class="hover:text-blue-400">Google Scholar</a></li>
+                        <li><a href="https://www.researchgate.net/profile/Kudurupaka-Krishna" target="_blank" class="hover:text-blue-400">ResearchGate</a></li>
+                        <li><a href="https://www.linkedin.com/in/kudurupaka-vamshi-krishna/" target="_blank" class="hover:text-blue-400">LinkedIn</a></li>
+                        <li><a href="https://orcid.org/0000-0002-1064-8260" target="_blank" class="hover:text-blue-400"> ORCID</a></li>
+                        <li><span id="footer-scholar-updated" class="text-[11px] text-slate-400 block mt-1"><!-- filled from JS using updatedAt --></span></li>
+                    </ul>
+            </div>
+
         </div>
+
+        <div class="max-w-1xl mx-auto px-1 text-center"><p>© 2026 Dr. K. Vamshi Krishna. All rights reserved.</p></div>
+        
     </footer>
 
     <script>
         document.addEventListener("DOMContentLoaded", async function () {
             // Detect if we are on Vercel (custom domain or vercel app) or GitHub Pages
             const host = window.location.host;
-
-            // Change this to your actual GitHub username & repo
-            const GITHUB_USER = "kudurupaka-vamshi-krishna";
-            const GITHUB_REPO = "kudurupaka-vamshi-krishna.github.io/kvamshikrishna.github.io";
-            const GITHUB_BRANCH = "main";
 
             let endpoint;
 
@@ -276,5 +318,7 @@
             }
         });
     </script>
+
 </body>
+
 </html>
