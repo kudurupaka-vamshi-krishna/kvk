@@ -95,6 +95,36 @@
             </div>
         </div>
 
+        <!-- Research Citation Impact Summary -->
+        <div class="bg-white p-6 rounded-xl border border-slate-200/80 shadow-sm space-y-4">
+            <div class="flex items-center justify-between border-b pb-3">
+                <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-graduation-cap text-blue-600"></i> Citation Impact (Google Scholar)
+                </h3>
+                <a href="https://scholar.google.com/citations?hl=en&authuser=3&user=eDJs5bAAAAAJ" target="_blank" class="text-xs text-blue-600 hover:underline font-medium">
+                    View Profile <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                </a>
+            </div>
+            
+            <div class="grid grid-cols-3 gap-4 text-center">
+                <div class="p-3 bg-slate-50 rounded-lg">
+                    <span class="text-xs text-slate-500 block">Total Citations</span>
+                    <span id="scholar-citations" class="text-xl font-bold text-slate-900">--</span>
+                </div>
+                <div class="p-3 bg-slate-50 rounded-lg">
+                    <span class="text-xs text-slate-500 block">h-index</span>
+                    <span id="scholar-hindex" class="text-xl font-bold text-slate-900">--</span>
+                </div>
+                <div class="p-3 bg-slate-50 rounded-lg">
+                    <span class="text-xs text-slate-500 block">i10-index</span>
+                    <span id="scholar-i10index" class="text-xl font-bold text-slate-900">--</span>
+                </div>
+                <p id="scholar-updated-at"
+                    class="mt-3 text-[11px] text-slate-500 italic">
+                    <!-- Filled by JS -->
+                </p>
+            </div>
+
     </main>
 
     <!-- Footer -->
@@ -315,6 +345,48 @@
                 container.innerHTML += card;
             });
         }
+        
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", async function () {
+            // Detect if we are on Vercel (custom domain or vercel app) or GitHub Pages
+            const host = window.location.host;
+
+            let endpoint;
+
+            if (host.includes("vercel.app")) {
+            // Running on Vercel deployment
+            endpoint = "/api/scholar-metrics";
+            } else {
+            // Assume GitHub Pages: load JSON directly from GitHub raw URL
+            endpoint = "../data/scholar_metrics.json";
+            }
+
+            try {
+            const response = await fetch(endpoint);
+
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+
+            const data = await response.json();
+
+            const citationsEl = document.getElementById("scholar-citations");
+            const hIndexEl   = document.getElementById("scholar-hindex");
+            const i10El      = document.getElementById("scholar-i10index");
+            const updatedEl  = document.getElementById("scholar-updated-at");
+
+            if (citationsEl) citationsEl.textContent = data.citations ?? "--";
+            if (hIndexEl)    hIndexEl.textContent    = data.hIndex ?? "--";
+            if (i10El)       i10El.textContent       = data.i10Index ?? "--";
+            if (updatedEl && data.updatedAt) {
+                updatedEl.textContent = "Updated on " + data.updatedAt;
+            }
+            } catch (err) {
+            console.error("Failed to load Scholar metrics:", err);
+            }
+        });
     </script>
 </body>
 </html>
