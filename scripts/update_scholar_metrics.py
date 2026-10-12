@@ -1,10 +1,15 @@
 # scripts/update_scholar_metrics.py
 
 import json
+import sys
 from pathlib import Path
 from datetime import datetime, timezone
 
-from scholarly import scholarly  # pip install scholarly
+try:
+    from scholarly import scholarly
+except ImportError:
+    print("Error: 'scholarly' package not installed. Run: pip install scholarly", file=sys.stderr)
+    sys.exit(1)
 
 # ---- CONFIGURATION ----
 # Your Google Scholar author ID (from ?user=... in your profile URL)
@@ -17,19 +22,23 @@ OUTPUT_PATH = Path("data/scholar_metrics.json")
 
 def fetch_scholar_metrics(author_id: str):
     """Fetch total citations, h-index, and i10-index for a Scholar author."""
-    author = scholarly.search_author_id(author_id)
-    author = scholarly.fill(author)  # populate full data
-
-    cites = author.get("citedby", None)
-    indices = author.get("hindex", None)
-    i10 = author.get("i10index", None)
-
-    metrics = {
-        "citations": cites,
-        "hIndex": indices,
-        "i10Index": i10,
-    }
-    return metrics
+    try:
+        author = scholarly.search_author_id(author_id)
+        author = scholarly.fill(author)  # populate full data
+    
+        cites = author.get("citedby", None)
+        indices = author.get("hindex", None)
+        i10 = author.get("i10index", None)
+    
+        return {
+            "citations": cites,
+            "hIndex": indices,
+            "i10Index": i10,
+        }
+    
+    except Exception as e:
+        print(f"Error fetching Scholar metrics: {e}", file=sys.stderr)
+        return None
 
 
 def main():
