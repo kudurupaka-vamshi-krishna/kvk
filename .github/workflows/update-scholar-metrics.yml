@@ -29,10 +29,9 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install scholarly
-          # sanity check: fail early if import fails
-          python -c "import scholarly; print('scholarly', getattr(scholarly, '__version__', 'unknown'))"
+        python -m pip install --upgrade pip
+        python -m pip install -r requirements.txt
+        python -c "import scholarly, bibtexparser; print('scholarly', getattr(scholarly,'__version__','unknown'), 'bibtexparser', getattr(bibtexparser,'__version__','unknown'))"
 
       - name: Run metrics update script
         run: |
