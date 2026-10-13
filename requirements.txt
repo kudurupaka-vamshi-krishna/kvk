@@ -1,2 +1,2 @@
-scholarly==1.13.0
+scholarly==1.0.4
 bibtexparser==1.4.1
