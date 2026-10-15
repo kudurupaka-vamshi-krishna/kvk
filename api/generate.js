@@ -1,12 +1,39 @@
-// Vercel serverless function.
-// Deploys automatically as POST https://<your-project>.vercel.app/api/generate
-// Requires an ANTHROPIC_API_KEY environment variable set in the Vercel project settings.
+// Vercel serverless function: POST /api/generate
+// Calls OpenRouter server-side so the API key never reaches the browser.
+//
+// Environment variables (Vercel -> Project -> Settings -> Environment Variables):
+//   OPENROUTER_API_KEY  (required)  your OpenRouter key
+//   OPENROUTER_MODEL    (optional)  defaults to "openai/gpt-4o"
+//   SITE_URL            (optional)  sent as HTTP-Referer, e.g. https://yourname.github.io
+//   SITE_NAME           (optional)  sent as X-Title
+//   ALLOWED_ORIGINS     (recommended) comma-separated exact origins, e.g.
+//                       https://kvamshikrishna.netlify.app,https://kudurupaka-vamshi-krishna.github.io,https://<project>.vercel.app
+//                       (defaults to "*" if unset)
 
 module.exports = async (req, res) => {
-  // CORS — restrict Access-Control-Allow-Origin to your real domain(s) before going to production.
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  // Comma-separated list of exact origins (scheme + host, no path, no trailing slash).
+  const allowed = (process.env.ALLOWED_ORIGINS || process.env.ALLOWED_ORIGIN || "*")
+    .split(",")
+    .map((s) => s.trim().replace(/\/$/, ""))
+    .filter(Boolean);
+  const reqOrigin = req.headers.origin;
+  const wildcard = allowed.includes("*");
+
+  if (wildcard) {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+  } else if (reqOrigin && allowed.includes(reqOrigin)) {
+    res.setHeader("Access-Control-Allow-Origin", reqOrigin);
+    res.setHeader("Vary", "Origin");
+  }
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  // Raises the bar against other sites using your credits (not a substitute for real auth:
+  // a script can spoof the Origin header).
+  if (!wildcard && (!reqOrigin || !allowed.includes(reqOrigin))) {
+    res.status(403).json({ error: "Origin not allowed" });
+    return;
+  }
 
   if (req.method === "OPTIONS") {
     res.status(200).end();
@@ -22,73 +49,91 @@ module.exports = async (req, res) => {
     res.status(400).json({ error: "title and abstract are required" });
     return;
   }
-
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
-    res.status(500).json({ error: "Server misconfigured: ANTHROPIC_API_KEY is not set" });
+  if (String(abstract).length > 6000) {
+    res.status(400).json({ error: "abstract is too long (max 6000 characters)" });
     return;
   }
 
-  const prompt = `You are generating a compact graphical abstract for a research paper for an instrument-panel styled science website.
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  if (!apiKey) {
+    res.status(500).json({ error: "Server misconfigured: OPENROUTER_API_KEY is not set" });
+    return;
+  }
+
+  const prompt = `You are generating a compact graphical abstract for a research paper.
 
 Title: ${title}
 Abstract: ${abstract}
 
-Return ONLY raw JSON (no markdown fences, no commentary) with this exact shape:
+Return ONLY a JSON object with exactly this shape:
 {"objective":"<max 12 words, the research question>","method":"<max 12 words, the approach>","finding":"<max 14 words, the key result>","svg":"<a complete standalone SVG string>"}
 
 SVG requirements:
 - viewBox="0 0 800 460", no width/height attributes on the root svg tag
-- Background rect fill="#0f1620" covering the full viewBox
-- Use ONLY these colors for strokes/fills/text: #2dd4bf, #fbbf24, #dbe4ec, #64748b, #22303f
-- Depict a left-to-right 3-stage flow: OBJECTIVE -> METHOD -> FINDING, using simple geometric shapes only (circles, rects, lines, polygons for arrows). No embedded images, no external fonts, no <image> tags.
-- Include short <text> labels (font-family="monospace", font-size 12-16) summarizing each stage in a few words.
-- Keep total element count modest (roughly 15-25 elements).
-- Make it visually specific to the actual science in the abstract, not a generic template shape, where possible reflect the domain (e.g. a wave, a molecule, a circuit, a vehicle, a cell) using simple primitives.
+- Background rect fill="#f8fafc" covering the full viewBox
+- Use ONLY these colors for strokes/fills/text: #2563eb, #f59e0b, #10b981, #0f172a, #64748b, #e2e8f0
+- Depict a left-to-right 3-stage flow: OBJECTIVE -> METHOD -> FINDING, using simple geometric shapes only (circles, rects, lines, polygons for arrows). No <image> tags, no external fonts, no scripts.
+- Include short <text> labels (font-family="sans-serif", font-size 13-16) summarizing each stage in a few words, placed so they do not overlap.
+- Keep the element count modest (roughly 15-25 elements).
+- Make the drawing specific to the science in the abstract (e.g. a vehicle, pedestrian, wave, circuit, cell) using simple primitives, not a generic template.
 
-Output only the JSON object, nothing else.`;
+Output only the JSON object.`;
 
   try {
-    const anthropicRes = await fetch("https://api.anthropic.com/v1/messages", {
+    const orRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "HTTP-Referer": process.env.SITE_URL || "https://example.com",
+        "X-Title": process.env.SITE_NAME || "Graphical Abstract Generator",
         "Content-Type": "application/json",
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        // Check https://docs.claude.com for the current recommended model string
-        // before going live — this changes over time.
-        model: "claude-sonnet-5",
-        max_tokens: 1000,
+        model: process.env.OPENROUTER_MODEL || "openai/gpt-4o",
         messages: [{ role: "user", content: prompt }],
+        max_tokens: 1800,
+        temperature: 0.4,
+        response_format: { type: "json_object" },
       }),
     });
 
-    if (!anthropicRes.ok) {
-      const errText = await anthropicRes.text();
-      res.status(502).json({ error: `Anthropic API error: ${errText}` });
+    if (!orRes.ok) {
+      const errText = await orRes.text();
+      res.status(502).json({ error: `OpenRouter error (${orRes.status}): ${errText}` });
       return;
     }
 
-    const data = await anthropicRes.json();
-    const textBlock = (data.content || []).find((b) => b.type === "text");
-    if (!textBlock) {
-      res.status(502).json({ error: "No text content returned by model" });
+    const data = await orRes.json();
+    const content = data.choices && data.choices[0] && data.choices[0].message
+      ? data.choices[0].message.content
+      : null;
+    if (!content) {
+      res.status(502).json({ error: "OpenRouter returned no content" });
       return;
     }
 
-    let clean = textBlock.text.trim();
-    clean = clean
+    const clean = content
+      .trim()
       .replace(/^```json\s*/i, "")
       .replace(/^```\s*/i, "")
       .replace(/```\s*$/i, "");
 
-    const parsed = JSON.parse(clean);
-    if (!parsed.svg) {
-      res.status(502).json({ error: "Model response did not include an svg field" });
+    let parsed;
+    try {
+      parsed = JSON.parse(clean);
+    } catch (e) {
+      res.status(502).json({ error: "Model did not return valid JSON. Try Regenerate." });
       return;
     }
+    if (!parsed.svg || typeof parsed.svg !== "string" || !parsed.svg.trim().startsWith("<svg")) {
+      res.status(502).json({ error: "Model response did not include a valid svg field" });
+      return;
+    }
+
+    // Defensive: strip scripts and inline event handlers before the browser injects this SVG.
+    parsed.svg = parsed.svg
+      .replace(/<script[\s\S]*?<\/script>/gi, "")
+      .replace(/\son\w+\s*=\s*("[^"]*"|'[^']*')/gi, "");
 
     res.status(200).json(parsed);
   } catch (err) {
