@@ -229,8 +229,9 @@
 <script>
     // ---- Configuration ----
     // Same Vercel function used across the site — reuse the one you already deployed.
-    const API_ENDPOINT = "https://kvamshikrishna.vercel.app/api/generate";
-
+    const VERCEL_API = "https://kvamshikrishna.vercel.app/api/generate";
+    const API_ENDPOINT = location.hostname.endsWith("vercel.app") ? "/api/generate" : VERCEL_API;
+    
     // ---- State ----
     let currentDoi = null;
     let currentPaper = null;
