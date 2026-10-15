@@ -79,6 +79,13 @@ SVG requirements:
 
 Output only the JSON object.`;
 
+    // OPENROUTER_MODEL can be one ID or a comma-separated list (max 3); later ones are fallbacks.
+    const models = (process.env.OPENROUTER_MODEL || "nvidia/llama-nemotron-rerank-vl-1b-v2:free, nvidia/nemotron-3.5-content-safety:free, google/gemma-4-26b-a4b-it:free")
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .slice(0, 3);
+  
   try {
     const orRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
@@ -88,12 +95,11 @@ Output only the JSON object.`;
         "X-Title": process.env.SITE_NAME || "Graphical Abstract Generator",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        model: process.env.OPENROUTER_MODEL || "openai/gpt-4o",
+        body: JSON.stringify({
+        ...(models.length > 1 ? { models } : { model: models[0] }),
         messages: [{ role: "user", content: prompt }],
-        max_tokens: 1800,
+        max_tokens: 2500,
         temperature: 0.4,
-        response_format: { type: "json_object" },
       }),
     });
 
@@ -112,11 +118,11 @@ Output only the JSON object.`;
       return;
     }
 
-    const clean = content
-      .trim()
-      .replace(/^```json\s*/i, "")
-      .replace(/^```\s*/i, "")
-      .replace(/```\s*$/i, "");
+    // Free or reasoning models may add <think> blocks, prose or code fences around the JSON.
+    let clean = content.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
+    const first = clean.indexOf("{");
+    const last = clean.lastIndexOf("}");
+    if (first !== -1 && last > first) clean = clean.slice(first, last + 1);
 
     let parsed;
     try {
